@@ -50,17 +50,26 @@ namespace LoxInterpreter
 			return Previous();
 		}
 
+		private Token Consume(TokenType type, string message)
+		{
+			if (Check(type)) return Advance();
+			throw new LoxRunTimeException(message, Advance()); 
+		}
 		private Token Previous()
 		{
 			return tokens[position - 1];
 		}
 
-		public Expression Parse(List<Token> Tokens)
+		public List<Statement> Parse(List<Token> Tokens)
 		{
 			/*
 				Grammar in Bakus-Naur Notation
 				==============================
-
+				program	   : statement* EOF ;
+				statement  : exprStmt
+								| printStmt ;
+				exprStmt   : expression ";" ;
+				printStmt  : "print" expression ";" ;
 				expression : equality ;
 				equality   : comparison ( ( "!=" | "==" ) comparison )* ;
 				comparison : term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -73,15 +82,35 @@ namespace LoxInterpreter
 			 */
 
 			tokens = Tokens;
-			Expression result = null;
+			List<Statement> result = null;
 			position = 0;
 
 			while (!AtEnd())
 			{
-				result = ParseExpression();
+				result.Add(ParseStatement());
 			}
 
 			return result;
+		}
+
+		private Statement ParseStatement()
+		{
+			if (Match(TokenType.Print)) return ParsePrintStatement();
+			return ParseExpresionStatement();
+		}
+
+		private Statement ParseExpresionStatement()
+		{
+			Expression expr = ParseExpression();
+			Consume(TokenType.Semicolon, "Expect ';' after expression.");
+			return new ExpressionStatement(expr);
+		}
+
+		private Statement ParsePrintStatement()
+		{
+			Expression expr = ParseExpression();
+			Consume(TokenType.Semicolon, "Expect ';' after value.");
+			return new PrintStatement(expr);
 		}
 
 		private Expression ParseExpression()
