@@ -71,13 +71,13 @@ namespace LoxInterpreter
 			return number;
 		}
 
-		public string ReadString()
+		public string ReadString(char c)
 		{
 			int start = Position;
-			while (Peek() != '\"')
+			while (Peek() != c)
 			{
 				Step();
-				if (Peek() != '\"' && Position + 1 == text.Length)
+				if (Peek() != c && Position + 1 == text.Length)
 				{
 					Step(); // skip the last character
 					return null;
@@ -156,9 +156,9 @@ namespace LoxInterpreter
 					case '\t':
 					case '\n': 
 						break;
-					case '\'': return tokens;
+					case '\'': 
 					case '\"':
-						string string_literal = ReadString();
+						string string_literal = ReadString(c);
 						if(string_literal == null)
 						{
 							Console.WriteLine("[X] Unclosed String!");
