@@ -11,7 +11,7 @@
 			Console.WriteLine();
 
 
-			Interpreter interpreter = new Interpreter();
+			Lox interpreter = new Lox();
 			string line;
 			while (true)
 			{

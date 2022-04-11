@@ -82,7 +82,7 @@ namespace LoxInterpreter
 			 */
 
 			tokens = Tokens;
-			List<Statement> result = null;
+			List<Statement> result = new List<Statement>();
 			position = 0;
 
 			while (!AtEnd())
@@ -108,7 +108,9 @@ namespace LoxInterpreter
 
 		private Statement ParsePrintStatement()
 		{
+			Consume(TokenType.LeftParenthesis, "Expect '('.");
 			Expression expr = ParseExpression();
+			Consume(TokenType.RightParenthesis, "Expect ')'.");
 			Consume(TokenType.Semicolon, "Expect ';' after value.");
 			return new PrintStatement(expr);
 		}

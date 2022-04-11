@@ -6,9 +6,6 @@ namespace LoxInterpreter
 	internal class LoxRunTimeException : Exception
 	{
 
-		public LoxRunTimeException(string? message, Token token) : base(message)
-		{
-			Console.WriteLine(message);
-		}
+		public LoxRunTimeException(string? message, Token token) : base(message) { }
 	}
 }

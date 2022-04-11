@@ -6,43 +6,44 @@ using System.Threading.Tasks;
 
 namespace LoxInterpreter
 {
-	internal interface IStatementVisitor<T>
+	internal interface IStatementVisitor
 	{
-
+		void VisitExpressionStatement(ExpressionStatement statement);
+		void VisitPrintStatement(PrintStatement printStatement);
 	}
 
 	internal abstract class Statement
 	{
-		public abstract T Accept<T>(IStatementVisitor<T> visitor);
+		public abstract void Accept(IStatementVisitor visitor);
 	}
 
 	internal class PrintStatement : Statement
 	{
-		private readonly Expression expr;
+		public readonly Expression expression;
 
 		public PrintStatement(Expression expr)
 		{
-			this.expr = expr;
+			this.expression = expr;
 		}
 
-		public override T Accept<T>(IStatementVisitor<T> visitor)
+		public override void Accept(IStatementVisitor visitor)
 		{
-			throw new NotImplementedException();
+			visitor.VisitPrintStatement(this);
 		}
 	}
 
 	internal class ExpressionStatement : Statement
 	{
-		private Expression expr;
+		public readonly Expression expression;
 
 		public ExpressionStatement(Expression expr)
 		{
-			this.expr = expr;
+			this.expression = expr;
 		}
 
-		public override T Accept<T>(IStatementVisitor<T> visitor)
+		public override void Accept(IStatementVisitor visitor)
 		{
-			throw new NotImplementedException();
+			visitor.VisitExpressionStatement(this);
 		}
 	}
 }

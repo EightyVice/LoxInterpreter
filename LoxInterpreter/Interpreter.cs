@@ -6,58 +6,100 @@ using System.Threading.Tasks;
 
 namespace LoxInterpreter
 {
-	internal class Interpreter
+	internal class Interpreter : IExpressionVisitor<object>, IStatementVisitor
 	{
-		public bool HasError { get;}
-
-		private Scanner Scanner = new Scanner();
-		private Parser Parser = new Parser();
-		public Interpreter()
+		private object Evaluate(Expression expression)
 		{
-			HasError = false;
-			
+			return expression.Accept(this);
 		}
-		private bool printlexemes = false;
-		private bool printast = false;
 
-		internal void InterpretLine(string line)
+		public void Interpret(List<Statement> statements)
 		{
-			if (line == ".prntlx")
+			foreach (Statement statement in statements)
 			{
-				printlexemes = !printlexemes;
-				return;
+				statement.Accept(this);
 			}
-			if (line == ".prntast") {
-				printast = !printast;
-				return;
-			}
+		}
+		public object VisitBinary(BinaryExpression binaryExpression)
+		{
+			object left  = Evaluate(binaryExpression.Left);
+			object right = Evaluate(binaryExpression.Right);
 
-			var tokens = Scanner.Scan(line);
-
-			if (printlexemes)
+			switch (binaryExpression.Operator.Type)
 			{
-				ConsoleColor[] colors = { ConsoleColor.Red, ConsoleColor.Green, ConsoleColor.Cyan, ConsoleColor.Yellow, ConsoleColor.White, ConsoleColor.Magenta, ConsoleColor.Blue };
-				int colorIndex = 0;
-				Console.Write("   ");
-				foreach (var token in tokens)
-				{
-					ConsoleColor color = colors[colorIndex % colors.Length];
-					Console.ForegroundColor = color;
-					Console.Write(token);
-					Console.Write(" ");
-					colorIndex++;
-				}
-
-				Console.WriteLine();
-				Console.ResetColor();
+				case TokenType.BangEqaul: return !isEqual(left, right);
+				case TokenType.EqualEqual: return isEqual(left, right);
+				case TokenType.Greater:
+					return (double)left > (double)right;
+				case TokenType.GreaterEqual:
+					return (double)left >= (double)right;
+				case TokenType.Smaller:
+					return (double)left < (double)right;
+				case TokenType.SmallerEqual:
+					return (double)left <= (double)right;
+				case TokenType.Minus:
+					return (double)left - (double)right;
+				case TokenType.Slash:
+					return (double)left / (double)right;
+				case TokenType.Asterisk:
+					return (double)left * (double)right;
+				case TokenType.Plus:
+					if(left is double && right is double) return (double)left + (double)right;
+					if(left is string && right is string) return (string)left + (string)right;
+					break;
 			}
-			Expression parseTree = Parser.Parse(tokens);
+			return null;
+		}
 
-			Evaluator evaluator = new Evaluator();
-			Console.ForegroundColor = ConsoleColor.Green;
-			Console.Write("=> ");
-			Console.WriteLine(evaluator.Evaluate(parseTree));
-			Console.ResetColor();
+		private bool isEqual(object a, object b)
+		{
+			if (a == null && b == null) return true;
+			if (a == null) return false;
+			return a == b;
+		}
+
+		public object VisitGrouping(GroupingExpression groupingExpression)
+		{
+			return Evaluate(groupingExpression.innerExpression);
+		}
+
+		public object VisitLiteral(LiteralExpression literalExpression)
+		{
+			return literalExpression.Literal;
+		}
+
+		public object VisitUnary(UnaryExpression unaryExpression)
+		{
+			object operand = Evaluate(unaryExpression.Operand);
+
+			switch (unaryExpression.Operator.Type)
+			{
+				case TokenType.Minus:
+					return -(double)operand;
+				case TokenType.Bang:
+					return !isTruthy(operand);
+			}
+			return null;
+		}
+
+		private bool isTruthy(object operand)
+		{
+			if (operand == null) return false;
+			if (operand is bool) return (bool)operand;
+			return true;
+		}
+
+		public void VisitExpressionStatement(ExpressionStatement statement)
+		{
+			object value = Evaluate(statement.expression);
+			Console.WriteLine(value);
+		}
+
+		public void VisitPrintStatement(PrintStatement printStatement)
+		{
+			object value = Evaluate(printStatement.expression);
+			
+			Console.WriteLine(value);
 		}
 	}
 }
