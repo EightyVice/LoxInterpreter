@@ -13,7 +13,7 @@ namespace LoxInterpreter
 		T VisitLiteral(LiteralExpression literalExpression);
 		T VisitGrouping(GroupingExpression groupingExpression);
 		T VisitVariable(VariableExpresion variableExpresion);
-
+		T VisitAssignment(AssignmentExpression assignmentExpression);
 	}
 
 	internal abstract class Expression
@@ -101,4 +101,22 @@ namespace LoxInterpreter
 			return visitor.VisitVariable(this);
 		}
 	}
+
+	internal class AssignmentExpression : Expression
+	{
+		public readonly Token lhs;
+		public readonly Expression value;
+
+		public AssignmentExpression(Token lhs, Expression value)
+		{
+			this.lhs = lhs;
+			this.value = value;
+		}
+
+		public override T Accept<T>(IExpressionVisitor<T> visitor)
+		{
+			return visitor.VisitAssignment(this);
+		}
+	}
+
 }

@@ -22,5 +22,16 @@ namespace LoxInterpreter
 			else
 				throw new LoxRunTimeException($"Using of undefined variable {name.Lexeme}", name);
 		}
+
+		internal void Assign(Token lhs, object value)
+		{
+			if (variables.ContainsKey(lhs.Lexeme))
+			{
+				variables[lhs.Lexeme] = value;
+				return;
+			}
+
+			throw new LoxRunTimeException($"Undefined varialble '{lhs.Lexeme}'.", lhs);
+		}
 	}
 }

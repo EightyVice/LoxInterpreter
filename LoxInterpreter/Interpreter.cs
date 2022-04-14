@@ -17,7 +17,10 @@ namespace LoxInterpreter
 
 		private object Evaluate(Expression expression)
 		{
-			return expression.Accept(this);
+			if (expression == null)
+				return null;
+			else
+				return expression.Accept(this);
 		}
 
 		public void Interpret(List<Statement> statements)
@@ -97,7 +100,7 @@ namespace LoxInterpreter
 		public void VisitExpressionStatement(ExpressionStatement statement)
 		{
 			object value = Evaluate(statement.expression);
-			Console.WriteLine(value);
+			Console.WriteLine(value ?? "Nil");
 		}
 
 		public void VisitPrintStatement(PrintStatement printStatement)
@@ -114,6 +117,13 @@ namespace LoxInterpreter
 		public object VisitVariable(VariableExpresion variableExpresion)
 		{
 			return environment.Get(variableExpresion.vartoken);
+		}
+
+		public object VisitAssignment(AssignmentExpression assignmentExpression)
+		{
+			object value = Evaluate(assignmentExpression.value);
+			environment.Assign(assignmentExpression.lhs, value);
+			return value;
 		}
 	}
 }

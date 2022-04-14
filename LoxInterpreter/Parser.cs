@@ -1,4 +1,31 @@
-﻿
+﻿/*
+	Grammar in Bakus-Naur Notation
+	==============================
+	declaration    → classDecl
+				   | funDecl
+				   | varDecl
+				   | statement ;
+
+	classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )?
+					 "{" function* "}" ;
+	funDecl        → "fun" function ;
+	varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;				
+	statement  : exprStmt
+					| printStmt ;
+	exprStmt   : expression ";" ;
+	printStmt  : "print" expression ";" ;
+	expression : assignemt;
+	assignment : IDENTIFIER "=" ASSIGNMENT
+	equality   : comparison ( ( "!=" | "==" ) comparison )* ;
+	comparison : term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+	term       : factor ( ( "-" | "+" ) factor )* ;
+	factor     : unary ( ( "/" | "*" ) unary )* ;
+	unary      : ( "!" | "-" ) unary
+			   | primary ;
+	primary    : NUMBER | STRING | "true" | "false" | "nil"
+			   | "(" expression ")" ;		
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,32 +89,7 @@ namespace LoxInterpreter
 
 		public List<Statement> Parse(List<Token> Tokens)
 		{
-			/*
-				Grammar in Bakus-Naur Notation
-				==============================
-				declaration    → classDecl
-				               | funDecl
-				               | varDecl
-				               | statement ;
-				
-				classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )?
-				                 "{" function* "}" ;
-				funDecl        → "fun" function ;
-				varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;				
-				statement  : exprStmt
-								| printStmt ;
-				exprStmt   : expression ";" ;
-				printStmt  : "print" expression ";" ;
-				expression : equality ;
-				equality   : comparison ( ( "!=" | "==" ) comparison )* ;
-				comparison : term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-				term       : factor ( ( "-" | "+" ) factor )* ;
-				factor     : unary ( ( "/" | "*" ) unary )* ;
-				unary      : ( "!" | "-" ) unary
-				           | primary ;
-				primary    : NUMBER | STRING | "true" | "false" | "nil"
-				           | "(" expression ")" ;		
-			 */
+
 
 			tokens = Tokens;
 			List<Statement> result = new List<Statement>();
@@ -146,7 +148,27 @@ namespace LoxInterpreter
 
 		private Expression ParseExpression()
 		{
-			return ParseEquality();
+			return ParseAssignment();
+		}
+
+		private Expression ParseAssignment()
+		{
+			Expression expression = ParseEquality();
+
+			if (Match(TokenType.Equal))
+			{
+				Token lhs = Previous();
+				Expression rhs = ParseAssignment();
+
+				if(expression is VariableExpresion)
+				{
+					Token name = ((VariableExpresion)expression).vartoken;
+					return new AssignmentExpression(name, rhs);
+				}
+
+				throw new LoxRunTimeException("Invalid Assignment target.", lhs);
+			}
+			return expression;
 		}
 
 		private Expression ParseEquality()

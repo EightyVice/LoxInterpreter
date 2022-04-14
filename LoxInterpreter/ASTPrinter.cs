@@ -12,6 +12,12 @@ namespace LoxInterpreter
 		{
 			expression.Accept(this);
 		}
+
+		public string VisitAssignment(AssignmentExpression assignmentExpression)
+		{
+			throw new NotImplementedException();
+		}
+
 		public string VisitBinary(BinaryExpression binaryExpression)
 		{
 			throw new NotImplementedException();
