@@ -8,6 +8,13 @@ namespace LoxInterpreter
 {
 	internal class Interpreter : IExpressionVisitor<object>, IStatementVisitor
 	{
+		private readonly Environment environment;
+
+		public Interpreter()
+		{
+			environment = new Environment();
+		}
+
 		private object Evaluate(Expression expression)
 		{
 			return expression.Accept(this);
@@ -53,8 +60,6 @@ namespace LoxInterpreter
 
 		private bool isEqual(object a, object b)
 		{
-			if (a == null && b == null) return true;
-			if (a == null) return false;
 			return a == b;
 		}
 
@@ -98,8 +103,17 @@ namespace LoxInterpreter
 		public void VisitPrintStatement(PrintStatement printStatement)
 		{
 			object value = Evaluate(printStatement.expression);
-			
 			Console.WriteLine(value);
+		}
+
+		public void VisitVarDeclarationStatement(VarDeclarationStatement varStatement)
+		{
+			environment.Define(varStatement.name, Evaluate(varStatement.initializer));
+		}
+
+		public object VisitVariable(VariableExpresion variableExpresion)
+		{
+			return environment.Get(variableExpresion.vartoken);
 		}
 	}
 }

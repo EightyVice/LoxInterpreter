@@ -147,10 +147,11 @@ namespace LoxInterpreter
 					case '+': addToken(TokenType.Plus, "+", null); break;
 					case ';': addToken(TokenType.Semicolon, ";", null); break;
 					case '*': addToken(TokenType.Asterisk, "*", null); break;
-					case '>': if (Peek() == '=') { addToken(TokenType.GreaterEqual, ">=", null); Step();} else { addToken(TokenType.Greater, ">", null);	Step(); } break;
-					case '<': if (Peek() == '=') { addToken(TokenType.SmallerEqual, "<=", null); Step();} else { addToken(TokenType.Smaller, "<", null);	Step(); } break;
-					case '=': if (Peek() == '=') { addToken(TokenType.EqualEqual, "==", null);	 Step();} else { addToken(TokenType.Equal, "=", null);		Step(); } break;
-					case '!': if (Peek() == '=') { addToken(TokenType.BangEqaul, "!=", null);	 Step(); } else { addToken(TokenType.Bang, "!", null);			Step(); } break;
+					case '/': if (Peek() == '/') return tokens; else addToken(TokenType.Slash, "\\", null); break;
+					case '>': if (Peek() == '=') { addToken(TokenType.GreaterEqual, ">=", null); Step();} else { addToken(TokenType.Greater, ">", null); } break;
+					case '<': if (Peek() == '=') { addToken(TokenType.SmallerEqual, "<=", null); Step();} else { addToken(TokenType.Smaller, "<", null); } break;
+					case '=': if (Peek() == '=') { addToken(TokenType.EqualEqual, "==", null);	 Step();} else { addToken(TokenType.Equal, "=", null);	 } break;
+					case '!': if (Peek() == '=') { addToken(TokenType.BangEqaul, "!=", null);	 Step(); } else { addToken(TokenType.Bang, "!", null);	 } break;
 					case ' ':
 					case '\r':
 					case '\t':

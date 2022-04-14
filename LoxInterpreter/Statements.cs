@@ -10,6 +10,7 @@ namespace LoxInterpreter
 	{
 		void VisitExpressionStatement(ExpressionStatement statement);
 		void VisitPrintStatement(PrintStatement printStatement);
+		void VisitVarDeclarationStatement(VarDeclarationStatement varDeclarationStatement);
 	}
 
 	internal abstract class Statement
@@ -32,6 +33,22 @@ namespace LoxInterpreter
 		}
 	}
 
+	internal class VarDeclarationStatement : Statement
+	{
+		public readonly string name;
+		public readonly Expression initializer;
+
+		public VarDeclarationStatement(string varname, Expression init)
+		{
+			name = varname;
+			initializer = init;
+		}
+
+		public override void Accept(IStatementVisitor visitor)
+		{
+			visitor.VisitVarDeclarationStatement(this);
+		}
+	}
 	internal class ExpressionStatement : Statement
 	{
 		public readonly Expression expression;

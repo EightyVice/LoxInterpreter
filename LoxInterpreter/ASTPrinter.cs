@@ -31,5 +31,10 @@ namespace LoxInterpreter
 		{
 			throw new NotImplementedException();
 		}
+
+		public string VisitVariable(VariableExpresion variableExpresion)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

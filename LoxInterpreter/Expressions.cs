@@ -12,8 +12,8 @@ namespace LoxInterpreter
 		T VisitUnary(UnaryExpression unaryExpression);
 		T VisitLiteral(LiteralExpression literalExpression);
 		T VisitGrouping(GroupingExpression groupingExpression);
+		T VisitVariable(VariableExpresion variableExpresion);
 
-		
 	}
 
 	internal abstract class Expression
@@ -84,6 +84,21 @@ namespace LoxInterpreter
 		public override T Accept<T>(IExpressionVisitor<T> visitor)
 		{
 			return visitor.VisitUnary(this);
+		}
+	}
+
+	internal class VariableExpresion : Expression
+	{
+		public Token vartoken;
+
+		public VariableExpresion(Token token)
+		{
+			vartoken = token;
+		}
+
+		public override T Accept<T>(IExpressionVisitor<T> visitor)
+		{
+			return visitor.VisitVariable(this);
 		}
 	}
 }

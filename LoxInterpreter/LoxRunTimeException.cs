@@ -5,7 +5,8 @@ namespace LoxInterpreter
 	[Serializable]
 	internal class LoxRunTimeException : Exception
 	{
-
-		public LoxRunTimeException(string? message, Token token) : base(message) { }
+		public Token Token { get; private set; }
+		public LoxRunTimeException(string message) : base(message) { }
+		public LoxRunTimeException(string? message, Token token) : base(message) { Token = token; }
 	}
 }

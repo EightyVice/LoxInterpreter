@@ -65,7 +65,15 @@ namespace LoxInterpreter
 			/*
 				Grammar in Bakus-Naur Notation
 				==============================
-				program	   : statement* EOF ;
+				declaration    → classDecl
+				               | funDecl
+				               | varDecl
+				               | statement ;
+				
+				classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )?
+				                 "{" function* "}" ;
+				funDecl        → "fun" function ;
+				varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;				
 				statement  : exprStmt
 								| printStmt ;
 				exprStmt   : expression ";" ;
@@ -87,10 +95,31 @@ namespace LoxInterpreter
 
 			while (!AtEnd())
 			{
-				result.Add(ParseStatement());
+				result.Add(ParseDeclaration());
 			}
 
 			return result;
+		}
+
+		private Statement ParseDeclaration()
+		{
+			if (Match(TokenType.Var)) return ParseVariableDeclaration();
+			return ParseStatement();
+		}
+
+		private Statement ParseVariableDeclaration()
+		{
+			Token name = Consume(TokenType.Identifier, "Expect a variable name.");
+
+			Expression initializer = null;
+			if (Match(TokenType.Equal))
+				initializer = ParseExpression();
+			else
+				initializer = new LiteralExpression(null);
+
+			Consume(TokenType.Semicolon, "Expect a ';' after variable declaration.");
+
+			return new VarDeclarationStatement(name.Lexeme, initializer);
 		}
 
 		private Statement ParseStatement()
@@ -192,6 +221,7 @@ namespace LoxInterpreter
 
 			if (Match(TokenType.Number, TokenType.String)) return new LiteralExpression(Previous().Literal);
 
+			if (Match(TokenType.Identifier)) return new VariableExpresion(Previous());
 			if (Match(TokenType.LeftParenthesis))
 			{
 				Expression expr = ParseExpression();

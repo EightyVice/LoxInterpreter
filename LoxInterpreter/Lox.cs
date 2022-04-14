@@ -35,6 +35,8 @@ namespace LoxInterpreter
 			}
 
 			var tokens = Scanner.Scan(line);
+			if (Scanner.HasError)
+				return;
 
 			if (printlexemes)
 			{
@@ -56,17 +58,19 @@ namespace LoxInterpreter
 			try
 			{
 				Console.ForegroundColor = ConsoleColor.Green;
-				Console.Write("=> ");
 				var statements = Parser.Parse(tokens);
 				Interpreter.Interpret(statements);
 				Console.ResetColor();
 			}
 			catch (LoxRunTimeException ex)
 			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine($"Error: {ex.Message}");
+				Console.WriteLine(line);
+				Console.WriteLine($"^{new string('~', ex.Token.Lexeme.Length - 1)}".PadLeft((int)ex.Token.Position));
 				Console.ResetColor();
-				Console.WriteLine(ex.Message);
 			}
-
+			Console.ResetColor();
 
 		}
 	}
