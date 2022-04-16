@@ -49,6 +49,7 @@ namespace LoxInterpreter
 			if(enclosing != null)
 			{
 				enclosing.Assign(lhs, value);
+				return;
 			}
 
 			throw new LoxRunTimeException($"Undefined varialble '{lhs.Lexeme}'.", lhs);
