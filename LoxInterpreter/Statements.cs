@@ -11,6 +11,7 @@ namespace LoxInterpreter
 		void VisitExpressionStatement(ExpressionStatement statement);
 		void VisitPrintStatement(PrintStatement printStatement);
 		void VisitVarDeclarationStatement(VarDeclarationStatement varDeclarationStatement);
+		void visitBlockStatement(BlockStatement blockStatement);
 	}
 
 	internal abstract class Statement
@@ -61,6 +62,21 @@ namespace LoxInterpreter
 		public override void Accept(IStatementVisitor visitor)
 		{
 			visitor.VisitExpressionStatement(this);
+			
+		}
+	}
+
+	internal class BlockStatement : Statement
+	{
+		public readonly List<Statement> statements;
+
+		public BlockStatement(List<Statement> innerStatements)
+		{
+			statements = innerStatements;
+		}
+		public override void Accept(IStatementVisitor visitor)
+		{
+			visitor.visitBlockStatement(this);
 		}
 	}
 }

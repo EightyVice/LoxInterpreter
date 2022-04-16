@@ -8,7 +8,7 @@ namespace LoxInterpreter
 {
 	internal class Interpreter : IExpressionVisitor<object>, IStatementVisitor
 	{
-		private readonly Environment environment;
+		private Environment environment;
 
 		public Interpreter()
 		{
@@ -63,7 +63,8 @@ namespace LoxInterpreter
 
 		private bool isEqual(object a, object b)
 		{
-			return a == b;
+			if(a == b) return true;
+			return a.Equals(b);
 		}
 
 		public object VisitGrouping(GroupingExpression groupingExpression)
@@ -124,6 +125,30 @@ namespace LoxInterpreter
 			object value = Evaluate(assignmentExpression.value);
 			environment.Assign(assignmentExpression.lhs, value);
 			return value;
+		}
+
+		public void visitBlockStatement(BlockStatement blockStatement)
+		{
+			ExecuteBlock(blockStatement.statements, new Environment(environment));
+		}
+
+		private void ExecuteBlock(List<Statement> statements, Environment environment)
+		{
+			Environment previous = this.environment;
+
+			try
+			{
+				this.environment = environment;
+
+				foreach (var stmt in statements)
+				{
+					stmt.Accept(this);
+				}
+			}
+			finally
+			{
+				this.environment = previous;
+			}
 		}
 	}
 }

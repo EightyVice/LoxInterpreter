@@ -87,6 +87,16 @@ namespace LoxInterpreter
 			return tokens[position - 1];
 		}
 
+		private List<Statement> ParseBlock() {
+			List<Statement> statements = new List<Statement>();
+
+			while (!Check(TokenType.RightBrace) && !AtEnd())
+			{
+				statements.Add(ParseDeclaration());
+			}
+			Consume(TokenType.RightBrace, "Expect '}' after block");
+			return statements;
+		}
 		public List<Statement> Parse(List<Token> Tokens)
 		{
 
@@ -127,7 +137,13 @@ namespace LoxInterpreter
 		private Statement ParseStatement()
 		{
 			if (Match(TokenType.Print)) return ParsePrintStatement();
+			if (Match(TokenType.LeftBrace)) return ParseBlockStatement();
 			return ParseExpresionStatement();
+		}
+
+		private Statement ParseBlockStatement()
+		{
+			return new BlockStatement(ParseBlock());
 		}
 
 		private Statement ParseExpresionStatement()
