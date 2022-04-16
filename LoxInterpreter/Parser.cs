@@ -139,7 +139,17 @@ namespace LoxInterpreter
 			if (Match(TokenType.Print)) return ParsePrintStatement();
 			if (Match(TokenType.LeftBrace)) return ParseBlockStatement();
 			if (Match(TokenType.If)) return ParseIfStatement();
+			if (Match(TokenType.While)) return ParseWhileStatement();
 			return ParseExpresionStatement();
+		}
+
+		private Statement ParseWhileStatement()
+		{
+			Consume(TokenType.LeftParenthesis, "Expect '(' after 'while'.");
+			Expression expression = ParseExpression();
+			Consume(TokenType.RightParenthesis, "Expect ')' after condition.");
+			Statement body = ParseStatement();
+			return new WhileStatement(expression, body);
 		}
 
 		private Statement ParseIfStatement()

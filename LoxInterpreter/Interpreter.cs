@@ -182,5 +182,14 @@ namespace LoxInterpreter
 
 			return Evaluate(logicalExpression.right);
 		}
+
+		public void visitWhileStatement(WhileStatement whileStatement)
+		{
+			while (isTruthy(Evaluate(whileStatement.condition)))
+			{
+				Execute(whileStatement.body);
+			}
+			return;
+		}
 	}
 }

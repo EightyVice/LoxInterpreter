@@ -13,6 +13,7 @@ namespace LoxInterpreter
 		void VisitVarDeclarationStatement(VarDeclarationStatement varDeclarationStatement);
 		void visitBlockStatement(BlockStatement blockStatement);
 		void VisitIfStatement(IfStatement ifStatement);
+		void visitWhileStatement(WhileStatement whileStatement);
 	}
 
 	internal abstract class Statement
@@ -97,6 +98,22 @@ namespace LoxInterpreter
 		public override void Accept(IStatementVisitor visitor)
 		{
 			visitor.VisitIfStatement(this);
+		}
+	}
+
+	internal class WhileStatement : Statement
+	{
+		public readonly Expression condition;
+		public readonly Statement body;
+
+		public WhileStatement(Expression condition, Statement body)
+		{
+			this.condition = condition;
+			this.body = body;
+		}
+		public override void Accept(IStatementVisitor visitor)
+		{
+			visitor.visitWhileStatement(this);
 		}
 	}
 }
