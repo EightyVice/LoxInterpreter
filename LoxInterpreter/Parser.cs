@@ -138,7 +138,23 @@ namespace LoxInterpreter
 		{
 			if (Match(TokenType.Print)) return ParsePrintStatement();
 			if (Match(TokenType.LeftBrace)) return ParseBlockStatement();
+			if (Match(TokenType.If)) return ParseIfStatement();
 			return ParseExpresionStatement();
+		}
+
+		private Statement ParseIfStatement()
+		{
+			Consume(TokenType.LeftParenthesis, "Expect '(' after 'if'.");
+			Expression condition = ParseExpression();
+			Consume(TokenType.RightParenthesis, "Expect ')' after if condition.");
+
+			Statement thenBranch = ParseStatement();
+			Statement elseBranch = null;
+
+			if(Match(TokenType.Else))
+				elseBranch = ParseStatement();
+
+			return new IfStatement(condition, thenBranch, elseBranch);
 		}
 
 		private Statement ParseBlockStatement()
@@ -169,7 +185,7 @@ namespace LoxInterpreter
 
 		private Expression ParseAssignment()
 		{
-			Expression expression = ParseEquality();
+			Expression expression = ParseOR();
 
 			if (Match(TokenType.Equal))
 			{
@@ -184,6 +200,34 @@ namespace LoxInterpreter
 
 				throw new LoxRunTimeException("Invalid Assignment target.", lhs);
 			}
+			return expression;
+		}
+
+		private Expression ParseOR()
+		{
+			Expression expression = ParseAND();
+
+			while (Match(TokenType.Or))
+			{
+				Token op = Previous();
+				Expression right = ParseAND();
+				expression = new LogicalExpression(expression, op, right);
+			}
+
+			return expression;
+		}
+
+		private Expression ParseAND()
+		{
+			Expression expression = ParseEquality();
+
+			while (Match(TokenType.And))
+			{
+				Token op = Previous();
+				Expression right = ParseEquality();
+				expression = new LogicalExpression(expression, op, right);
+			}
+			
 			return expression;
 		}
 

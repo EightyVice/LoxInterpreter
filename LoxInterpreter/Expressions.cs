@@ -14,6 +14,7 @@ namespace LoxInterpreter
 		T VisitGrouping(GroupingExpression groupingExpression);
 		T VisitVariable(VariableExpresion variableExpresion);
 		T VisitAssignment(AssignmentExpression assignmentExpression);
+		T VisitLogical(LogicalExpression logicalExpression);
 	}
 
 	internal abstract class Expression
@@ -116,6 +117,26 @@ namespace LoxInterpreter
 		public override T Accept<T>(IExpressionVisitor<T> visitor)
 		{
 			return visitor.VisitAssignment(this);
+		}
+	}
+
+
+	internal class LogicalExpression : Expression
+	{
+		public readonly Expression left;
+		public readonly Token op;
+		public readonly Expression right;
+
+		public LogicalExpression(Expression lhs, Token Operator, Expression rhs)
+		{
+			left = lhs;
+			right = rhs;
+			op = Operator;
+		}
+
+		public override T Accept<T>(IExpressionVisitor<T> visitor)
+		{
+			return visitor.VisitLogical(this);
 		}
 	}
 

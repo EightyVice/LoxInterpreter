@@ -30,6 +30,12 @@ namespace LoxInterpreter
 				statement.Accept(this);
 			}
 		}
+
+		private void Execute(Statement statement)
+		{
+			statement.Accept(this);
+		}
+
 		public object VisitBinary(BinaryExpression binaryExpression)
 		{
 			object left  = Evaluate(binaryExpression.Left);
@@ -149,6 +155,32 @@ namespace LoxInterpreter
 			{
 				this.environment = previous;
 			}
+		}
+
+		public void VisitIfStatement(IfStatement ifStatement)
+		{
+			if (isTruthy(Evaluate(ifStatement.condition)))
+				Execute(ifStatement.thenBranch);
+			else if(ifStatement.elseBranch != null)
+				Execute(ifStatement.elseBranch);
+			else
+				return;
+		}
+
+		public object VisitLogical(LogicalExpression logicalExpression)
+		{
+			object left = Evaluate(logicalExpression.left);
+
+			if (logicalExpression.op.Type == TokenType.Or)
+			{
+				if (isTruthy(left)) return left;
+			}
+			else if (logicalExpression.op.Type == TokenType.And)
+			{
+				if (!isTruthy(left)) return left;
+			}
+
+			return Evaluate(logicalExpression.right);
 		}
 	}
 }

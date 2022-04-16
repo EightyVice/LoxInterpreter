@@ -12,6 +12,7 @@ namespace LoxInterpreter
 		void VisitPrintStatement(PrintStatement printStatement);
 		void VisitVarDeclarationStatement(VarDeclarationStatement varDeclarationStatement);
 		void visitBlockStatement(BlockStatement blockStatement);
+		void VisitIfStatement(IfStatement ifStatement);
 	}
 
 	internal abstract class Statement
@@ -77,6 +78,25 @@ namespace LoxInterpreter
 		public override void Accept(IStatementVisitor visitor)
 		{
 			visitor.visitBlockStatement(this);
+		}
+	}
+
+	internal class IfStatement : Statement
+	{
+		public readonly Expression condition;
+		public readonly Statement thenBranch;
+		public readonly Statement elseBranch;
+
+		public IfStatement(Expression condition, Statement thenBranch, Statement elseBranch)
+		{
+			this.condition = condition;
+			this.thenBranch = thenBranch;
+			this.elseBranch = elseBranch;
+		}
+
+		public override void Accept(IStatementVisitor visitor)
+		{
+			visitor.VisitIfStatement(this);
 		}
 	}
 }

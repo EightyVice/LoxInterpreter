@@ -33,6 +33,11 @@ namespace LoxInterpreter
 			throw new NotImplementedException();
 		}
 
+		public string VisitLogical(LogicalExpression logicalExpression)
+		{
+			throw new NotImplementedException();
+		}
+
 		public string VisitUnary(UnaryExpression unaryExpression)
 		{
 			throw new NotImplementedException();
