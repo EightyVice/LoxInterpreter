@@ -140,7 +140,45 @@ namespace LoxInterpreter
 			if (Match(TokenType.LeftBrace)) return ParseBlockStatement();
 			if (Match(TokenType.If)) return ParseIfStatement();
 			if (Match(TokenType.While)) return ParseWhileStatement();
+			if (Match(TokenType.For)) return ParseForStatement();
+
 			return ParseExpresionStatement();
+		}
+
+		private Statement ParseForStatement()
+		{
+			Consume(TokenType.LeftParenthesis, "Expect '(' after 'for'.");
+
+			Statement initializer;
+			if (Match(TokenType.Semicolon))
+				initializer = null;
+			else if (Match(TokenType.Var))
+				initializer = ParseVariableDeclaration();
+			else
+				initializer = ParseExpresionStatement();
+
+			Expression condition = null;
+			if (!Check(TokenType.Semicolon)) 
+				condition = ParseExpression();
+
+			Consume(TokenType.Semicolon, "Expect ';' after loop condition");
+
+			Expression post = null;
+			if (!Check(TokenType.RightParenthesis))
+				post = ParseExpression();
+
+			Consume(TokenType.RightParenthesis, "Expect ')' after 'for' clauses.");
+
+			Statement body = ParseStatement();
+			if(post != null)
+				body = new BlockStatement(new List<Statement> { body, new ExpressionStatement(post) });
+
+			if (condition == null) condition = new LiteralExpression(true);
+			body = new WhileStatement(condition, body);
+
+			if(initializer != null) body = new BlockStatement(new List<Statement> { initializer, body });
+
+			return body;
 		}
 
 		private Statement ParseWhileStatement()
