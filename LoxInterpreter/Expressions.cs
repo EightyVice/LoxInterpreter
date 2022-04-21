@@ -15,6 +15,7 @@ namespace LoxInterpreter
 		T VisitVariable(VariableExpresion variableExpresion);
 		T VisitAssignment(AssignmentExpression assignmentExpression);
 		T VisitLogical(LogicalExpression logicalExpression);
+		T VisitFunctionalCall(CallExpression callExpression);
 	}
 
 	internal abstract class Expression
@@ -88,6 +89,26 @@ namespace LoxInterpreter
 		}
 	}
 
+
+	internal class CallExpression : Expression
+	{
+		public readonly Expression Callee;
+		public readonly Token Parenthesis;
+		public readonly List<Expression> Arguments;
+
+		public CallExpression(Expression callee, Token parenthesis, List<Expression> arguments)
+		{
+			Callee = callee;
+			Parenthesis = parenthesis;
+			Arguments = arguments;
+		}
+
+		public override T Accept<T>(IExpressionVisitor<T> visitor)
+		{
+			return visitor.VisitFunctionalCall(this);
+		}
+	}
+
 	internal class VariableExpresion : Expression
 	{
 		public Token vartoken;
@@ -120,7 +141,7 @@ namespace LoxInterpreter
 		}
 	}
 
-
+	
 	internal class LogicalExpression : Expression
 	{
 		public readonly Expression left;

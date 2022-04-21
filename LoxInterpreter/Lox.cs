@@ -13,6 +13,7 @@ namespace LoxInterpreter
 		private Scanner Scanner = new Scanner();
 		private Parser Parser = new Parser();
 		private Interpreter Interpreter = new Interpreter();
+		private string sourceCode;
 
 		public Lox()
 		{
@@ -22,6 +23,13 @@ namespace LoxInterpreter
 		private bool printlexemes = false;
 		private bool printast = false;
 
+		internal void InterpretFile(string fileName)
+		{
+			sourceCode = File.ReadAllText(fileName);
+			var tokens = Scanner.Scan(sourceCode);
+			var ast = Parser.Parse(tokens);
+			Interpreter.Interpret(ast);
+		}
 		internal void InterpretLine(string line)
 		{
 			if (line == ".prntlx")

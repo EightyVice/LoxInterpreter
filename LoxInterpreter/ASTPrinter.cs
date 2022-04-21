@@ -23,6 +23,11 @@ namespace LoxInterpreter
 			throw new NotImplementedException();
 		}
 
+		public string VisitFunctionalCall(CallExpression callExpression)
+		{
+			throw new NotImplementedException();
+		}
+
 		public string VisitGrouping(GroupingExpression groupingExpression)
 		{
 			throw new NotImplementedException();

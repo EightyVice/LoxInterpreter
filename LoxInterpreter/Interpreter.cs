@@ -8,12 +8,28 @@ namespace LoxInterpreter
 {
 	internal class Interpreter : IExpressionVisitor<object>, IStatementVisitor
 	{
+		public readonly Environment globals = new Environment();
 		private Environment environment;
 
+		private class Globals
+		{
+			public class Clock : LoxCallable
+			{
+				int LoxCallable.Arity { get => 0; }
+
+				object LoxCallable.Call(Interpreter interpreter, List<object> arguments)
+				{
+					return (double)DateTimeOffset.Now.ToUnixTimeSeconds();
+				}
+			}
+		}
 		public Interpreter()
 		{
-			environment = new Environment();
+			environment = globals;
+			globals.Define("clock", new Globals.Clock());
 		}
+
+
 
 		private object Evaluate(Expression expression)
 		{
@@ -107,7 +123,7 @@ namespace LoxInterpreter
 		public void VisitExpressionStatement(ExpressionStatement statement)
 		{
 			object value = Evaluate(statement.expression);
-			Console.WriteLine(value ?? "Nil");
+			//Console.WriteLine(value ?? "Nil");
 		}
 
 		public void VisitPrintStatement(PrintStatement printStatement)
@@ -138,7 +154,7 @@ namespace LoxInterpreter
 			ExecuteBlock(blockStatement.statements, new Environment(environment));
 		}
 
-		private void ExecuteBlock(List<Statement> statements, Environment environment)
+		public void ExecuteBlock(List<Statement> statements, Environment environment)
 		{
 			Environment previous = this.environment;
 
@@ -190,6 +206,30 @@ namespace LoxInterpreter
 				Execute(whileStatement.body);
 			}
 			return;
+		}
+
+		public object VisitFunctionalCall(CallExpression callExpression)
+		{
+			object callee = Evaluate(callExpression.Callee);
+			List<object> arguments = new List<object>();
+			foreach(Expression argument in callExpression.Arguments)
+			{
+				arguments.Add(Evaluate(argument));
+			}
+
+			if (callee is not LoxCallable)
+				throw new LoxRunTimeException("Invalid call invocation.", callExpression.Parenthesis);
+
+			LoxCallable function = (LoxCallable)callee;
+			if (arguments.Count != function.Arity)
+				throw new LoxRunTimeException($"Expected {function.Arity} arguments but got {arguments.Count}.");
+
+			return function.Call(this, arguments);
+		}
+
+		public void visitFunctionStatement(FunctionStatement functionStatement)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

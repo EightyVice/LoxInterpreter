@@ -14,6 +14,8 @@ namespace LoxInterpreter
 		void visitBlockStatement(BlockStatement blockStatement);
 		void VisitIfStatement(IfStatement ifStatement);
 		void visitWhileStatement(WhileStatement whileStatement);
+		void visitFunctionStatement(FunctionStatement functionStatement);
+
 	}
 
 	internal abstract class Statement
@@ -114,6 +116,25 @@ namespace LoxInterpreter
 		public override void Accept(IStatementVisitor visitor)
 		{
 			visitor.visitWhileStatement(this);
+		}
+	}
+
+	internal class FunctionStatement : Statement
+	{
+		public readonly Token Name;
+		public readonly List<Token> Parameters;
+		public readonly List<Statement> Body;
+
+		public FunctionStatement(Token name, List<Token> parameters, List<Statement> body)
+		{
+			Name = name;
+			Parameters = parameters;
+			Body = body;
+		}
+
+		public override void Accept(IStatementVisitor visitor)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

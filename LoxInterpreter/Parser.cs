@@ -21,7 +21,8 @@
 	term       : factor ( ( "-" | "+" ) factor )* ;
 	factor     : unary ( ( "/" | "*" ) unary )* ;
 	unary      : ( "!" | "-" ) unary
-			   | primary ;
+			   | call ;
+	call	   : primary
 	primary    : NUMBER | STRING | "true" | "false" | "nil"
 			   | "(" expression ")" ;		
  */
@@ -134,6 +135,11 @@ namespace LoxInterpreter
 			return new VarDeclarationStatement(name.Lexeme, initializer);
 		}
 
+		private enum FunctionType
+		{
+			Function,
+			Method
+		}
 		private Statement ParseStatement()
 		{
 			if (Match(TokenType.Print)) return ParsePrintStatement();
@@ -141,8 +147,30 @@ namespace LoxInterpreter
 			if (Match(TokenType.If)) return ParseIfStatement();
 			if (Match(TokenType.While)) return ParseWhileStatement();
 			if (Match(TokenType.For)) return ParseForStatement();
+			if (Match(TokenType.Fun)) return ParseFunctionStatement(FunctionType.Function);
 
 			return ParseExpresionStatement();
+		}
+
+		private Statement ParseFunctionStatement(FunctionType function)
+		{
+			Token name = Consume(TokenType.Identifier, $"Expect {function} name.");
+
+			Consume(TokenType.LeftParenthesis, $"Expect '(' after {function} name.");
+			List<Token> parameters = new List<Token>();
+			if (!Check(TokenType.RightParenthesis))
+			{
+				do
+				{
+					parameters.Add(Consume(TokenType.Identifier, "Expect parameter name."));
+				} while (Match(TokenType.Comma));
+			}
+
+			Consume(TokenType.RightParenthesis, "Expect ')' after parameters.");
+
+			Consume(TokenType.LeftParenthesis, "Expect '{ before body");
+			List<Statement> body = ParseBlock();
+			return new FunctionStatement(name, parameters, body);
 		}
 
 		private Statement ParseForStatement()
@@ -178,7 +206,7 @@ namespace LoxInterpreter
 
 			if(initializer != null) body = new BlockStatement(new List<Statement> { initializer, body });
 
-			return body;
+			return body; 
 		}
 
 		private Statement ParseWhileStatement()
@@ -332,6 +360,7 @@ namespace LoxInterpreter
 			return expr;
 		}
 
+
 		private Expression ParseUnary()
 		{
 			if(Match(TokenType.Bang, TokenType.Minus))
@@ -340,7 +369,40 @@ namespace LoxInterpreter
 				Expression operand = ParseUnary();
 				return new UnaryExpression(op, operand);
 			}
-			return ParsePrimary();
+			return ParseCall();
+		}
+
+		private Expression ParseCall() 
+		{ 
+			Expression expression = ParsePrimary();
+			while (true)
+			{
+				if (Match(TokenType.LeftParenthesis))
+				{
+					expression = ParseCallArgs(expression);
+				}
+				else
+				{
+					break;
+				}
+			}
+			return expression;
+		}
+
+		private Expression ParseCallArgs(Expression callee)
+		{
+			List<Expression> arguments = new List<Expression>();
+			if (!Check(TokenType.RightParenthesis))
+			{
+				do
+				{
+					arguments.Add(ParseExpression());
+				} while (Match(TokenType.Comma));
+			}
+
+			Token paren = Consume(TokenType.RightParenthesis, "Expect ')' after arguments.");
+
+			return new CallExpression(callee, paren, arguments);
 		}
 
 		private Expression ParsePrimary()

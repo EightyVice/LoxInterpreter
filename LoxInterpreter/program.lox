@@ -1,0 +1,12 @@
+﻿// Basic second counter
+var offset = clock(); // get current time
+var diff = 0;
+var n = 0;
+
+while(true){
+	diff = clock() - offset;
+	if(n != diff){
+		print(diff);
+		n = diff;
+	}
+}
