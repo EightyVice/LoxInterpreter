@@ -1,4 +1,4 @@
-﻿//#define REPL 
+﻿#define REPL 
 namespace LoxInterpreter
 {
 	internal class Program

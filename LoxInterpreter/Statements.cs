@@ -15,6 +15,7 @@ namespace LoxInterpreter
 		void VisitIfStatement(IfStatement ifStatement);
 		void visitWhileStatement(WhileStatement whileStatement);
 		void visitFunctionStatement(FunctionStatement functionStatement);
+		void visitReturnStatement(ReturnStatement returnStatement);
 
 	}
 
@@ -134,7 +135,24 @@ namespace LoxInterpreter
 
 		public override void Accept(IStatementVisitor visitor)
 		{
-			throw new NotImplementedException();
+			visitor.visitFunctionStatement(this);
+		}
+	}
+
+	internal class ReturnStatement : Statement
+	{
+		public readonly Token Keyword;
+		public readonly Expression Value;
+
+		public ReturnStatement(Token keyword, Expression value)
+		{
+			Keyword = keyword;
+			Value = value;
+		}
+
+		public override void Accept(IStatementVisitor visitor)
+		{
+			visitor.visitReturnStatement(this);
 		}
 	}
 }

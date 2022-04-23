@@ -126,7 +126,6 @@ namespace LoxInterpreter
 			{"true",   TokenType.True},
 			{"while",  TokenType.While},
 			{"var",    TokenType.Var},
-			{"input",  TokenType.Input}
 		};
 
 		private void addToken(TokenType tokenType, string lexeme, object? literal)

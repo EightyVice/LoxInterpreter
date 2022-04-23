@@ -22,11 +22,35 @@ namespace LoxInterpreter
 					return (double)DateTimeOffset.Now.ToUnixTimeSeconds();
 				}
 			}
+
+			public class Flush : LoxCallable
+			{
+				int LoxCallable.Arity { get => 0; }
+
+				object LoxCallable.Call(Interpreter interpreter, List<object> arguments)
+				{
+					Console.Clear();
+					return null;
+				}
+			}
+
+			public class Input : LoxCallable
+			{
+				int LoxCallable.Arity { get => 0; }
+
+				object LoxCallable.Call(Interpreter interpreter, List<object> arguments)
+				{
+					return Console.ReadLine();
+				}
+			}
 		}
 		public Interpreter()
 		{
-			environment = globals;
 			globals.Define("clock", new Globals.Clock());
+			globals.Define("flush", new Globals.Flush());
+			globals.Define("input", new Globals.Input());
+
+			environment = globals;
 		}
 
 
@@ -52,29 +76,48 @@ namespace LoxInterpreter
 			statement.Accept(this);
 		}
 
+		private void castBinary(object lhs, object rhs)
+		{
+			if (lhs.GetType() == rhs.GetType())
+				return;
+
+			if (lhs is string && rhs is not string)
+			{
+				rhs = Convert.ToString(rhs);
+			}
+			else
+			{
+				if(lhs is double && rhs is not double)
+				{
+					rhs = Convert.ToDouble(rhs);
+				}
+			}
+			
+		}
 		public object VisitBinary(BinaryExpression binaryExpression)
 		{
 			object left  = Evaluate(binaryExpression.Left);
 			object right = Evaluate(binaryExpression.Right);
+			castBinary(left, right);
 
 			switch (binaryExpression.Operator.Type)
 			{
 				case TokenType.BangEqaul: return !isEqual(left, right);
 				case TokenType.EqualEqual: return isEqual(left, right);
 				case TokenType.Greater:
-					return (double)left > (double)right;
+					return Convert.ToDouble(left) > Convert.ToDouble(right);
 				case TokenType.GreaterEqual:
-					return (double)left >= (double)right;
+					return Convert.ToDouble(left) >= Convert.ToDouble(right);
 				case TokenType.Smaller:
-					return (double)left < (double)right;
+					return Convert.ToDouble(left) < Convert.ToDouble(right);
 				case TokenType.SmallerEqual:
-					return (double)left <= (double)right;
+					return Convert.ToDouble(left) <= Convert.ToDouble(right);
 				case TokenType.Minus:
-					return (double)left - (double)right;
+					return Convert.ToDouble(left) - Convert.ToDouble(right);
 				case TokenType.Slash:
-					return (double)left / (double)right;
+					return Convert.ToDouble(left) / Convert.ToDouble(right);
 				case TokenType.Asterisk:
-					return (double)left * (double)right;
+					return Convert.ToDouble(left) * Convert.ToDouble(right);
 				case TokenType.Plus:
 					if(left is double && right is double) return (double)left + (double)right;
 					if(left is string && right is string) return (string)left + (string)right;
@@ -229,7 +272,15 @@ namespace LoxInterpreter
 
 		public void visitFunctionStatement(FunctionStatement functionStatement)
 		{
-			throw new NotImplementedException();
+			LoxFunction function = new LoxFunction(functionStatement, environment);
+			environment.Define(functionStatement.Name.Lexeme, function);
+		}
+
+		public void visitReturnStatement(ReturnStatement returnStatement)
+		{
+			object value = null;
+			if (returnStatement.Value != null) value = Evaluate(returnStatement.Value);
+			throw new ReturnInvocation(value);
 		}
 	}
 }

@@ -10,23 +10,34 @@
 	{
 
 		private readonly FunctionStatement declaration;
+		private readonly Environment closure;
 
-		public LoxFunction(FunctionStatement declaration)
+		public int Arity { get; }
+
+		public LoxFunction(FunctionStatement declaration, Environment closure)
 		{
 			this.declaration = declaration;
+			this.closure = closure;
+
+			Arity = declaration.Parameters.Count;
 		}
 
-		int LoxCallable.Arity { get => throw new NotImplementedException(); }
 
 		public object Call(Interpreter interpreter, List<object> arguments)
 		{
-			Environment environment = new Environment(interpreter.globals);
+			Environment environment = new Environment(closure);
 			for (int i = 0; i < declaration.Parameters.Count; i++)
 			{
 				environment.Define(declaration.Parameters[i].Lexeme, arguments[i]);
 			}
-
-			interpreter.ExecuteBlock(declaration.Body, environment);
+			try
+			{
+				interpreter.ExecuteBlock(declaration.Body, environment);
+			}
+			catch (ReturnInvocation returnValue)
+			{
+				return returnValue.value;
+			}
 			return null;
 		}
 	}

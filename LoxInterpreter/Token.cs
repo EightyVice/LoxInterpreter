@@ -25,7 +25,6 @@ namespace LoxInterpreter
 		Print, Return, Super, This, True, Var, While,
 
 		EOF,
-		Input
 	}
 
 	internal class Token

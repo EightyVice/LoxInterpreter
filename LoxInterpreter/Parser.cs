@@ -148,8 +148,20 @@ namespace LoxInterpreter
 			if (Match(TokenType.While)) return ParseWhileStatement();
 			if (Match(TokenType.For)) return ParseForStatement();
 			if (Match(TokenType.Fun)) return ParseFunctionStatement(FunctionType.Function);
-
+			if (Match(TokenType.Return)) return ParseReturnStatement();
 			return ParseExpresionStatement();
+		}
+
+		private Statement ParseReturnStatement()
+		{
+			Token keyword = Previous();
+			Expression val = null;
+			if (!Check(TokenType.Semicolon))
+				val = ParseExpression();
+
+			Consume(TokenType.Semicolon, "Expect ';' after a return value.");
+
+			return new ReturnStatement(keyword, val);
 		}
 
 		private Statement ParseFunctionStatement(FunctionType function)
@@ -168,7 +180,7 @@ namespace LoxInterpreter
 
 			Consume(TokenType.RightParenthesis, "Expect ')' after parameters.");
 
-			Consume(TokenType.LeftParenthesis, "Expect '{ before body");
+			Consume(TokenType.LeftBrace, "Expect '{ before body");
 			List<Statement> body = ParseBlock();
 			return new FunctionStatement(name, parameters, body);
 		}
